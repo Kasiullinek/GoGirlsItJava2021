@@ -16,7 +16,7 @@ public class World {
     }
 
     private static void moveAnimal(Animal animal) {
-        animal.move(MapDirection.values()[random.nextInt(MapDirection.values().length)], WIDTH, HEIGHT);
+        animal.move(MapDirection.values()[random.nextInt(MapDirection.values().length)]);
     }
 }
 

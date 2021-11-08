@@ -1,14 +1,10 @@
 package Simulation;
 
 public class Simulation {
-    private static final int HEIGHT = 20, WIDTH = 30;
-    private static final IWorldMap worldMap;
+    private static final int WIDTH = 20, HEIGHT = 30;
+    private static final WorldMap worldMap = new WorldMap(WIDTH, HEIGHT);
 
-    static {
-        worldMap = new WorldMap(WIDTH, HEIGHT);
-    }
-
-    public static IWorldMap getWorldMap() {
+    public static WorldMap getWorldMap() {
         return worldMap;
     }
 
