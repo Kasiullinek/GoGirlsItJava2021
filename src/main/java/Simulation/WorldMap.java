@@ -20,21 +20,28 @@ public class WorldMap extends AbstractWorldMap {
             animals.add(new Animal(getRandomPosition()));
         }for(int i = 0; i < PLANTS_NUM; i++)
         {
-            Vector2D position = getRandomPosition();
-            while(IsOccupiedByPlant(position)) position = getRandomPosition();
-            plants.add(new Plant(position));
+            placePlantsOnMap();
         }
     }
 
+    private void placePlantsOnMap()
+    {
+        Vector2D position = getRandomPosition();
+        while(IsOccupiedByPlant(position)) position = getRandomPosition();
+        plants.add(new Plant(position));
+    }
     private boolean IsOccupiedByPlant(Vector2D position)
     {
-        for(Plant plant : plants)
-        {
-            if(plant.getPosition().equals(position)) return true;
-        }
-        return false;
+        return getPlantAtPosition(position) != null;
     }
 
+    private Plant getPlantAtPosition(Vector2D position) {
+        for(Plant plant : plants)
+        {
+            if(plant.getPosition().equals(position)) return plant;
+        }
+        return null;
+    }
     private Vector2D getRandomPosition()
     {
         return new Vector2D(random.nextInt(getWidth()), random.nextInt(getHeight()));
@@ -46,5 +53,17 @@ public class WorldMap extends AbstractWorldMap {
         }
     }
 
-
+    public void eat()
+    {
+        for(Animal animal: animals)
+        {
+            if(IsOccupiedByPlant(animal.getPosition())) {
+                Plant plant = getPlantAtPosition(animal.getPosition());
+                if(plant != null) {
+                    plants.remove(plant);
+                    placePlantsOnMap();
+                }
+            }
+        }
+    }
 }
