@@ -1,34 +1,41 @@
 package Simulation;
 
-import java.util.Random;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class WorldMap extends AbstractWorldMap {
     private static final int ANIMALS_NUM = 10, PLANTS_NUM = 100;
-    private final List<Animal> animals = new ArrayList<>();
-    private final List<Plant> plants = new ArrayList<>();
+    private HashMap<Vector2D, List<Animal>> animalsPosition = new HashMap<>();
+    private ArrayList<Animal> animals = new ArrayList<>();
+    private HashMap<Vector2D, Plant> plants = new HashMap<>();
     private Random random;
 
     public WorldMap(int width, int height) {
         super(width, height);
         random = new Random();
-        for(int i = 0; i < ANIMALS_NUM; i++)
-        {
-            animals.add(new Animal(getRandomPosition()));
-        }for(int i = 0; i < PLANTS_NUM; i++)
-        {
+        for(int i = 0; i < ANIMALS_NUM; i++) {
+            Animal animal = new Animal(getRandomPosition());
+            animals.add(animal);
+            placeAnimalOnMap(animal);
+        }for(int i = 0; i < PLANTS_NUM; i++) {
             placePlantsOnMap();
         }
     }
-
+    private void placeAnimalOnMap(Animal animal)
+    {
+        List<Animal> animalsAtPosition = animalsPosition.get(animal.getPosition());
+        if(animalsAtPosition == null) {
+            animalsAtPosition = new LinkedList<>();
+            animalsPosition.put(animal.getPosition(), animalsAtPosition);
+        }
+        animalsAtPosition.add(animal);
+    }
     private void placePlantsOnMap()
     {
         Vector2D position = getRandomPosition();
         while(IsOccupiedByPlant(position)) position = getRandomPosition();
-        plants.add(new Plant(position));
+        plants.put(position, new Plant(position));
     }
     private boolean IsOccupiedByPlant(Vector2D position)
     {
@@ -36,11 +43,7 @@ public class WorldMap extends AbstractWorldMap {
     }
 
     private Plant getPlantAtPosition(Vector2D position) {
-        for(Plant plant : plants)
-        {
-            if(plant.getPosition().equals(position)) return plant;
-        }
-        return null;
+        return  plants.get(position);
     }
     private Vector2D getRandomPosition()
     {
@@ -48,21 +51,20 @@ public class WorldMap extends AbstractWorldMap {
     }
     @Override
     public void run() {
+        animalsPosition.clear();
         for (Animal animal : animals) {
             animal.move(MapDirection.values()[this.random.nextInt(MapDirection.values().length)]);
+            placeAnimalOnMap(animal);
         }
     }
 
     public void eat()
     {
-        for(Animal animal: animals)
-        {
+        for(Animal animal: animals) {
             if(IsOccupiedByPlant(animal.getPosition())) {
-                Plant plant = getPlantAtPosition(animal.getPosition());
-                if(plant != null) {
-                    plants.remove(plant);
-                    placePlantsOnMap();
-                }
+                System.out.println("Animal ate plant on position " + animal.getPosition());
+                plants.remove(animal.getPosition());
+                placePlantsOnMap();
             }
         }
     }
