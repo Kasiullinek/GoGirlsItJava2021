@@ -10,12 +10,13 @@ public class WorldMap extends AbstractWorldMap {
     private ArrayList<Animal> animals = new ArrayList<>();
     private HashMap<Vector2D, Plant> plants = new HashMap<>();
     private Random random;
+    private static final int INITIAL_ENERGY = 20;
 
     public WorldMap(int width, int height) {
         super(width, height);
         random = new Random();
         for(int i = 0; i < ANIMALS_NUM; i++) {
-            Animal animal = new Animal(getRandomPosition());
+            Animal animal = new Animal(getRandomPosition(), INITIAL_ENERGY);
             animals.add(animal);
             placeAnimalOnMap(animal);
         }for(int i = 0; i < PLANTS_NUM; i++) {
@@ -24,12 +25,7 @@ public class WorldMap extends AbstractWorldMap {
     }
     private void placeAnimalOnMap(Animal animal)
     {
-        List<Animal> animalsAtPosition = animalsPosition.get(animal.getPosition());
-        if(animalsAtPosition == null) {
-            animalsAtPosition = new LinkedList<>();
-            animalsPosition.put(animal.getPosition(), animalsAtPosition);
-        }
-        animalsAtPosition.add(animal);
+        animalsPosition.computeIfAbsent(animal.getPosition(), pos -> new LinkedList<>()).add(animal);
     }
     private void placePlantsOnMap()
     {
