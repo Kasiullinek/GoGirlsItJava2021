@@ -16,9 +16,5 @@ public class World {
         }
         System.out.println("Stop");
     }
-
-    private static void moveAnimal(Animal animal) {
-        animal.move(MapDirection.values()[random.nextInt(MapDirection.values().length)]);
-    }
 }
 
