@@ -6,16 +6,16 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class WorldMap extends AbstractWorldMap {
-    private static final int ANIMALS_NUM = 40, PLANTS_NUM = 500;
+    private static final int ANIMALS_NUM = SimulationParams.getField("noOfAnimals"), PLANTS_NUM = SimulationParams.getField("noOfPlants");
     private HashMap<Vector2D, List<Animal>> animalsPosition = new HashMap<>();
     private List<Animal> animals = new ArrayList<>();
     private HashMap<Vector2D, Plant> plants = new HashMap<>();
     private Random random;
     private static final int INITIAL_ENERGY = 20;
-    private static final int PLANT_ENERGY = 10;
+    private static final int PLANT_ENERGY = SimulationParams.getField("plantEnergy");
     private int dayNumber = 1;
 
-    public WorldMap(int width, int height) {
+    public WorldMap(int width, int height, int noOfAnimals, int noOfPlants, int animalsEnergy, int plantEnergy) {
         super(width, height);
         random = new Random();
         for(int i = 0; i < ANIMALS_NUM; i++) {
@@ -85,7 +85,7 @@ public class WorldMap extends AbstractWorldMap {
         System.out.println("Today is day number "+ dayNumber );
         animalsPosition.clear();
         animals.forEach(animal -> {
-            animal.move(MapDirection.values()[this.random.nextInt(MapDirection.values().length)]);
+            animal.moveBasedOnGenome();
             placeAnimalOnMap(animal);
         });
     }

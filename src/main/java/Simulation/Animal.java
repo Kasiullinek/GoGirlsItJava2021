@@ -49,6 +49,10 @@ public class Animal implements Comparable<Animal>{
         return this;
     }
 
+    public void moveBasedOnGenome() {
+        move(genome.getRandomMove());
+    }
+
     public Animal(Animal mother, Animal father) {
         Vector2D direction = MapDirection.values()[new Random().nextInt(MapDirection.values().length)].getUnitVector();
         this.position = pbc(mother.getPosition().add(direction));
