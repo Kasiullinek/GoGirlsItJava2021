@@ -1,8 +1,6 @@
 package Simulation;
 
-import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 public class SimulationParams {
     private static final String CONFIG_PATH = "config.json";
