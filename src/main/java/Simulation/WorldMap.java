@@ -27,6 +27,7 @@ public class WorldMap extends AbstractWorldMap {
             Animal animal = new Animal(getRandomPosition(), INITIAL_ENERGY);
             addNewAnimal(animal);
         }for(int i = 0; i < PLANTS_NUM; i++) {
+            if(plants.size() >= getWidth() * getHeight()) break;
             placePlantsOnMap();
         }
     }
@@ -68,10 +69,11 @@ public class WorldMap extends AbstractWorldMap {
     {
         animalsPosition.computeIfAbsent(animal.getPosition(), pos -> new LinkedList<>()).add(animal);
     }
-    private void placePlantsOnMap()
-    {
+    private void placePlantsOnMap() {
         Vector2D position = getRandomPosition();
-        while(IsOccupiedByPlant(position)) position = getRandomPosition();
+        while(IsOccupiedByPlant(position)) {
+            position = getRandomPosition();
+        }
         plants.put(position, new Plant(position));
     }
     private boolean IsOccupiedByPlant(Vector2D position)
@@ -103,7 +105,9 @@ public class WorldMap extends AbstractWorldMap {
                 animals.stream().max(Animal::compareTo).ifPresent(this::eatPlant);
             }
         });
-        IntStream.range(1, new Random().nextInt(PLANTS_NUM / 10) + 1).forEach(i -> placePlantsOnMap());
+        if(plants.size() < getWidth() * getHeight() - (PLANTS_NUM / 10 + 1)) {
+            IntStream.range(1, new Random().nextInt(PLANTS_NUM / 10) + 1).forEach(i -> placePlantsOnMap());
+        }
     }
 
     private void eatPlant(Animal animal) {
@@ -123,5 +127,15 @@ public class WorldMap extends AbstractWorldMap {
         );
         System.out.println(statistics);
         JsonParser.dumpStatisticsToJsonFile(STATIC_FILE, statistics);
+    }
+
+    @Override
+    public Map<Vector2D, Plant> getPlantsLocations() {
+        return plants;
+    }
+
+    @Override
+    public Map<Vector2D, List<Animal>> getAnimalsLocations() {
+        return animalsPosition;
     }
 }
