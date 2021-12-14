@@ -9,26 +9,34 @@ import java.util.stream.IntStream;
 public class WorldMap extends AbstractWorldMap {
     private static final String STATIC_FILE = "stats.json";
 
-    private final int ANIMALS_NUM = SimulationParams.getField("noOfAnimals");
-    private final int PLANTS_NUM = SimulationParams.getField("noOfPlants");
+    private int animalsEnergy = 0;
+    private int plantEnergy = 0;
+    private int noOfPlants = 0;
     private final int INITIAL_ENERGY = SimulationParams.getField("animalEnergy");
-    private final int PLANT_ENERGY = SimulationParams.getField("plantEnergy");
     private int dayNumber = 1;
 
     private List<Animal> animals = new ArrayList<>();
     private HashMap<Vector2D, List<Animal>> animalsPosition = new HashMap<>();
     private HashMap<Vector2D, Plant> plants = new HashMap<>();
-    private Random random;
+    private Random random = new Random();
+    private SimulationStatistics statistics = null;
 
-    public WorldMap(int width, int height, int noOfAnimals, int noOfPlants, int animalsEnergy, int plantEnergy) {
-        super(width, height);
-        random = new Random();
-        for(int i = 0; i < ANIMALS_NUM; i++) {
-            Animal animal = new Animal(getRandomPosition(), INITIAL_ENERGY);
-            addNewAnimal(animal);
-        }for(int i = 0; i < PLANTS_NUM; i++) {
-            if(plants.size() >= getWidth() * getHeight()) break;
-            placePlantsOnMap();
+    public WorldMap() {
+        super(SimulationParams.getField("width"), SimulationParams.getField("height"));
+    }
+
+    public void setSimulation()
+    {
+        this.animalsEnergy = SimulationParams.getField("animalEnergy");
+        this.plantEnergy = SimulationParams.getField("plantEnergy");
+        this.noOfPlants = Math.min(SimulationParams.getField("noOfPlants"), getHeight() * getWidth());
+        animals.clear();
+        plants.clear();
+        for(int i = 0; i < SimulationParams.getField("noOfAnimals"); i++) {
+            addNewAnimal(new Animal(getRandomPosition(), animalsEnergy));
+        }for(int i = 0; i < noOfPlants; i++) {
+        if(plants.size() >= getWidth() * getHeight()) break;
+        placePlantsOnMap();
         }
     }
 
@@ -105,19 +113,19 @@ public class WorldMap extends AbstractWorldMap {
                 animals.stream().max(Animal::compareTo).ifPresent(this::eatPlant);
             }
         });
-        if(plants.size() < getWidth() * getHeight() - (PLANTS_NUM / 10 + 1)) {
-            IntStream.range(1, new Random().nextInt(PLANTS_NUM / 10) + 1).forEach(i -> placePlantsOnMap());
+        if(plants.size() < getWidth() * getHeight() - (noOfPlants / 10 + 1)) {
+            IntStream.range(1, new Random().nextInt(noOfPlants / 10) + 1).forEach(i -> placePlantsOnMap());
         }
     }
 
     private void eatPlant(Animal animal) {
         System.out.println("Animal ate plant on position " + animal.getPosition());
-        animal.setEnergy(animal.getEnergy() + PLANT_ENERGY);
+        animal.setEnergy(animal.getEnergy() + plantEnergy);
         plants.remove(animal.getPosition());
     }
 
     private void createStatistics() {
-        SimulationStatistics statistics = new SimulationStatistics(
+        statistics = new SimulationStatistics(
                 dayNumber,
                 animals.stream().mapToInt(Animal::getAge).average().orElse(0),
                 animals.stream().mapToInt(Animal::getNumberOfChildren).average().orElse(0),
@@ -125,7 +133,7 @@ public class WorldMap extends AbstractWorldMap {
                 animals.size(),
                 plants.size()
         );
-        System.out.println(statistics);
+       // System.out.println(statistics);
         JsonParser.dumpStatisticsToJsonFile(STATIC_FILE, statistics);
     }
 
@@ -137,5 +145,9 @@ public class WorldMap extends AbstractWorldMap {
     @Override
     public Map<Vector2D, List<Animal>> getAnimalsLocations() {
         return animalsPosition;
+    }
+
+    public SimulationStatistics getStatistics() {
+        return statistics;
     }
 }

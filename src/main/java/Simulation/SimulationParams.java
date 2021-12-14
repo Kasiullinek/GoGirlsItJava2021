@@ -14,4 +14,12 @@ public class SimulationParams {
             throw new IllegalArgumentException("There is no filed: " + k );
         });
     }
+
+    public static void setField(String fieldName, int value) {
+        paramsMap.put(fieldName, value);
+    }
+
+    public static Map<String, Integer> getParamsMap() {
+        return paramsMap;
+    }
 }
